@@ -1,5 +1,3 @@
-import numpy as np
-import time
 import tkinter as tk
 from copy import deepcopy
 
@@ -114,15 +112,6 @@ class Maze(object):
     def show(self):
         self.root.mainloop()
 
-def update():
-    for t in range(10):
-        s = env.reset()
-        while True:
-            time.sleep(0.1)
-            a = 1
-            s, r, done = env.step(a)
-            if done:
-                break
 
 if __name__ == '__main__':
     env = Maze()
