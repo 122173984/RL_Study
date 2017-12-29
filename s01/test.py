@@ -3,7 +3,7 @@ from s01.RL_brain import QLearningTable
 
 
 def update():
-    for episode in range(100):
+    for episode in range(1000):
         
         observation = env.reset()
         

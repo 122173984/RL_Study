@@ -12,11 +12,33 @@ class QLearningTable:
         self.q_table = pd.DataFrame(columns = self.actions)
     
     def choose_action(self, observation):
-        pass
+        self.check_state_exist(observation)
+        
+        if np.random.uniform() < self.epsilon:
+            state_action = self.q_table.ix[observation, :]
+            state_action = state_action.reindex(np.random.permutation(state_action.index))
+            action = state_action.idxmax()
+        else:
+            action = np.random.choice(self.actions)
+        
+        return action
     
     def learn(self, s, a, r, s_):
-        pass
+        self.check_state_exist(s_)
+        q_predict = self.q_table.ix[s,a]
+        if s_ != 'terminal':
+            q_target = r + self.gamma * self.q_table.ix[s_,:].max()
+        else:
+            q_target = r
+        
+        self.q_table.ix[s,a] += self.lr * (q_target - q_predict)
     
     def check_state_exist(self, state):
-        pass
+        if state not in self.q_table.index:
+            self.q_table = self.q_table.append(
+                pd.Series(
+                    [0.0] * len(self.actions), index = self.q_table.columns, name = state
+                )
+            )
+            
     
