@@ -1,36 +1,43 @@
-from s01.maze_env import Maze
+from s01.maze2 import Maze
 from s01.RL_brain import QLearningTable
-
+import threading
+import time
 
 def update():
+    flag = False
     for episode in range(1000):
         
-        observation = env.reset()
+        status = env.reset()
+        count = 0
+#         time.sleep(0.01)
         
         while True:
-            
-            env.render()
-            
-            action = RL.choose_action(str(observation))
-            
-            observation_, reward, done = env.step(action)
-            
-            RL.learn(str(observation), action, reward, str(observation_))
-            
-            observation = observation_
-            
+            count += 1
+            action = RL.choose_action(status)
+            status_, reward, done = env.step(action)
+            RL.learn(status, action, reward, status_)
+            status = status_
+            if flag:
+                time.sleep(0.1)
             if done:
+                if reward == 1:
+                    print ('SUCCESS -', episode, count)
+                    if count < 40:
+                        flag = True
+                else:
+                    print ('FAIL    -', episode, count)
+#                 print (RL.q_table)
                 break
     
     
     print ('game over!')
-    env.destroy()
     
 
 if __name__ == '__main__':
     env = Maze()
-    RL = QLearningTable(actions = list(range(env.n_actions)))
-    
-    env.after(100, update)
-    env.mainloop()
+    RL = QLearningTable(actions = list(range(env.n_actions)))    
+    t = threading.Thread(target = update)
+    t.setDaemon(True)
+    t.start()
+    env.show()
     
