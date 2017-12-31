@@ -1,4 +1,5 @@
 import tkinter as tk
+import numpy as np
 from copy import deepcopy
 
 UNIT = 40   # pixels
@@ -14,10 +15,12 @@ class Maze(object):
         
         self.action_names = ['up', 'down', 'left', 'right']
         self.n_actions = len(self.action_names)
+        self.n_features = 2
 #         self.root.geometry('{0}x{1}'.format(MAZE_H * UNIT, MAZE_H * UNIT))
         
-        self.trap_init_loc = [[1,2],[2,1],[1,3],[3,2],[2,4],[3,4],[4,2],[5,2],[6,2],[6,3],[6,4],[6,5],[6,6],
-                              [5,6],[4,6],[4,4],[3,6],[1,4],[1,5],[1,6],[1,7],[1,8],[2,8],[3,8],[4,8],[5,8]]
+        self.trap_init_loc = [[1,2]]
+#         self.trap_init_loc = [[1,2],[2,1],[1,3],[3,2],[2,4],[3,4],[4,2],[5,2],[6,2],[6,3],[6,4],[6,5],[6,6],
+#                               [5,6],[4,6],[4,4],[3,6],[1,4],[1,5],[1,6],[1,7],[1,8],[2,8],[3,8],[4,8],[5,8]]
         self.exit_init_loc = [2,2]
         
         self.actor_init_loc = [0,0]
@@ -75,7 +78,8 @@ class Maze(object):
         self._draw_actor()
         self.root.update()
         # return observation
-        return str(self.actor_loc)
+        return np.array(self.actor_loc)
+#         return str(self.actor_loc)
 
     def step(self, action):
         x, y = self.actor_loc
@@ -106,8 +110,8 @@ class Maze(object):
         else:
             reward = 0
             done = False
-
-        return str(self.actor_loc), reward, done
+        return np.array(self.actor_loc), reward, done
+#         return str(self.actor_loc), reward, done
 
     def show(self):
         self.root.mainloop()
