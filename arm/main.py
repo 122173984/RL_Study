@@ -3,30 +3,21 @@ Make it more robust.
 Stop episode once the finger stop at the final position for 50 steps.
 Feature & reward engineering.
 """
-from arm.env import ArmEnv
+from arm.env import ArmEnv, Viewer
 from arm.rl import DDPG
+import threading
+import time
 
 MAX_EPISODES = 900
 MAX_EP_STEPS = 200
-ON_TRAIN = False
 
-# set env
-env = ArmEnv()
-s_dim = env.state_dim
-a_dim = env.action_dim
-a_bound = env.action_bound
 
-# set RL method (continuous)
-rl = DDPG(a_dim, s_dim, a_bound)
-
-steps = []
-def train():
+def train(env, rl):
     # start training
     for i in range(MAX_EPISODES):
         s = env.reset()
         ep_r = 0.
         for j in range(MAX_EP_STEPS):
-            # env.render()
 
             a = rl.choose_action(s)
 
@@ -43,21 +34,46 @@ def train():
             if done or j == MAX_EP_STEPS-1:
                 print('Ep: %i | %s | ep_r: %.1f | step: %i' % (i, '---' if not done else 'done', ep_r, j))
                 break
-    rl.save()
+#     rl.save()
 
 
-def eval():
-    rl.restore()
-    env.render()
-    env.viewer.set_vsync(True)
+def eval(env,rl, view):
     s = env.reset()
     while True:
-        env.render()
+        view.render()
         a = rl.choose_action(s)
         s, r, done = env.step(a)
+        time.sleep(0.05)
 
+def start_eval():
+    # set env
+    env = ArmEnv()
+    s_dim = env.state_dim
+    a_dim = env.action_dim
+    a_bound = env.action_bound
+    
+    # set RL method (continuous)
+    rl = DDPG(a_dim, s_dim, a_bound)
+    rl.restore()
+    
+    view = Viewer(env)
+    t = threading.Thread(target = eval, args=(env,rl, view))
+    t.setDaemon(True)
+    t.start()
+    view.show()
 
-if ON_TRAIN:
-    train()
-else:
-    eval()
+def start_train():
+    # set env
+    env = ArmEnv()
+    s_dim = env.state_dim
+    a_dim = env.action_dim
+    a_bound = env.action_bound
+    
+    # set RL method (continuous)
+    rl = DDPG(a_dim, s_dim, a_bound)
+    train(env, rl)
+    rl.save()
+
+if __name__ == '__main__':
+    start_eval()
+    
